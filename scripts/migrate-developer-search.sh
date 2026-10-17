@@ -53,7 +53,8 @@ Planned changes:
   - preserve the existing HTTPS OpenSearch reader identity and password;
   - preserve localhost:5601 browser redirects for the VPN + SSH tunnel workflow;
   - validate Python syntax and HTTP health before retiring legacy paths;
-  - retain a rollback backup under /root.
+  - retain a rollback backup under /root;
+  - retain legacy installation files and service definition until manual review.
 
 No OpenSearch, Dashboards, Prometheus, Data Prepper, Alertmanager, dashboard,
 saved-object, firewall or application telemetry configuration is changed.
@@ -64,6 +65,9 @@ fi
 
 [[ "${EUID}" -eq 0 ]] || die "Run as root."
 [[ -n "$EXPECTED_HOST" ]] || die "EXPECTED_HOST is required."
+for setting in LEGACY_SERVICE LEGACY_APP LEGACY_CA LEGACY_PASSWORD LEGACY_HTML_TITLE LEGACY_HTML_BRAND LEGACY_HTML_ENV LEGACY_HTML_SUGGESTIONS LEGACY_HTML_FOOTER; do
+  [[ -n "${!setting:-}" ]] || die "Set $setting explicitly before --apply; the public defaults are placeholders."
+done
 [[ "$(hostname -s)" == "$EXPECTED_HOST" ]] || die "Expected host '$EXPECTED_HOST', found '$(hostname -s)'."
 [[ -f "$LEGACY_APP" ]] || die "Missing legacy app: $LEGACY_APP"
 [[ -f "$LEGACY_CA" ]] || die "Missing legacy CA: $LEGACY_CA"
@@ -259,8 +263,7 @@ trap - ERR
 systemctl enable "$NEW_SERVICE" >/dev/null
 systemctl disable "$LEGACY_SERVICE" >/dev/null 2>&1 || true
 
-rm -f "/etc/systemd/system/multi-user.target.wants/$LEGACY_SERVICE"
-rm -f "/etc/systemd/system/$LEGACY_SERVICE"
+info "Legacy service definition retained for reviewed rollback and later cleanup."
 info "Legacy application, service files, and credentials were retained for reviewed cleanup after validation."
 systemctl daemon-reload
 
