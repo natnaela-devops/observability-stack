@@ -1,6 +1,6 @@
-# OpenSearch Observability Platform for RKE2
+# Observability Stack — OpenSearch, OpenTelemetry and RKE2
 
-A version-pinned, progressively validated observability platform for RKE2 and Java microservices. The design targets banking environments with large Kubernetes application fleets while keeping the stateful observability services outside the application cluster.
+A version-pinned, progressively validated observability platform for RKE2 and Java microservices. The reference layout keeps stateful observability services outside the application cluster. Hostnames, credentials, storage paths, and environment-specific deployment settings belong in private configuration.
 
 This implementation replaces the repository's former SigNoz/Grafana experiment. **SigNoz and Grafana are not components of this implementation.**
 
