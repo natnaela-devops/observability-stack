@@ -3,14 +3,15 @@ set -Eeuo pipefail
 
 MODE="${1:-}"
 EXPECTED_HOST="${EXPECTED_HOST:-}"
+# Set LEGACY_* paths, LEGACY_SERVICE and LEGACY_HTML_* markers for the actual host before applying.
 OBSERVABILITY_ENVIRONMENT="${OBSERVABILITY_ENVIRONMENT:-uat2}"
 OBSERVABILITY_ENV_LABEL="${OBSERVABILITY_ENV_LABEL:-UAT2}"
 
-LEGACY_SERVICE="${LEGACY_SERVICE:-enat-trace-lookup.service}"
+LEGACY_SERVICE="${LEGACY_SERVICE:-legacy-observability-search.service}"
 NEW_SERVICE="${NEW_SERVICE:-observability-search.service}"
-LEGACY_APP="${LEGACY_APP:-/opt/enat-trace-lookup/app.py}"
-LEGACY_CA="${LEGACY_CA:-/etc/enat-trace-lookup/root-ca.pem}"
-LEGACY_PASSWORD="${LEGACY_PASSWORD:-/etc/enat-trace-lookup-secret/opensearch-password}"
+LEGACY_APP="${LEGACY_APP:-/opt/legacy-observability-search/app.py}"
+LEGACY_CA="${LEGACY_CA:-/etc/legacy-observability-search/root-ca.pem}"
+LEGACY_PASSWORD="${LEGACY_PASSWORD:-/etc/legacy-observability-search-secret/opensearch-password}"
 
 NEW_APP_DIR="/opt/observability-search"
 NEW_APP="$NEW_APP_DIR/app.py"
@@ -46,9 +47,9 @@ Planned changes:
   - copy the working application into /opt/observability-search;
   - make environment label, year, Dashboards base, listener and object IDs runtime-driven;
   - replace customer-specific visible branding with environment identity;
-  - preserve developer attribution: nhxttx;
+  - preserve author attribution in the replacement UI;
   - move CA/config/credential paths under /etc/observability-search;
-  - replace enat-trace-lookup.service with observability-search.service;
+  - replace the configured legacy service with observability-search.service;
   - preserve the existing HTTPS OpenSearch reader identity and password;
   - preserve localhost:5601 browser redirects for the VPN + SSH tunnel workflow;
   - validate Python syntax and HTTP health before retiring legacy paths;
@@ -93,6 +94,7 @@ install -o root -g root -m 0600 "$LEGACY_PASSWORD" "$NEW_CREDENTIAL_DIR/opensear
 
 python3 - "$NEW_APP" <<'PY'
 from pathlib import Path
+import os
 import re
 import sys
 
@@ -100,11 +102,11 @@ p = Path(sys.argv[1])
 s = p.read_text()
 
 required = [
-    '<title>Enat UAT2 Developer Search</title>',
-    '<span class="brand">ENAT BANK</span>',
-    '<span class="env">UAT2</span>',
-    'Suggestions come from real UAT2 trace data.',
-    '© 2026 Enat UAT2 Developer Observability Search · Created by nhxttx',
+    '<title>' + os.environ.get('LEGACY_HTML_TITLE', 'Example UAT Developer Search') + '</title>',
+    '<span class="brand">' + os.environ.get('LEGACY_HTML_BRAND', 'EXAMPLE ORGANIZATION') + '</span>',
+    '<span class="env">' + os.environ.get('LEGACY_HTML_ENV', 'UAT2') + '</span>',
+    os.environ.get('LEGACY_HTML_SUGGESTIONS', 'Suggestions come from the configured environment trace data.'),
+    os.environ.get('LEGACY_HTML_FOOTER', '© 2026 Example UAT Developer Observability Search · Created by original-author'),
 ]
 missing = [x for x in required if x not in s]
 if missing:
@@ -155,28 +157,28 @@ for pattern, repl in patterns.items():
 
 # Customer-neutral visible identity.
 s = s.replace(
-    '<title>Enat UAT2 Developer Search</title>',
+    required[0],
     '<title>{html.escape(ENVIRONMENT_LABEL)} Developer Observability Search</title>',
     1,
 )
 s = s.replace(
-    '<span class="brand">ENAT BANK</span>',
+    required[1],
     '<span class="brand">ENVIRONMENT</span>',
     1,
 )
 s = s.replace(
-    '<span class="env">UAT2</span>',
+    required[2],
     '<span class="env">{html.escape(ENVIRONMENT_LABEL)}</span>',
     1,
 )
 s = s.replace(
-    'Suggestions come from real UAT2 trace data.',
+    required[3],
     'Suggestions come from real {html.escape(ENVIRONMENT_LABEL)} trace data.',
     1,
 )
 s = s.replace(
-    '© 2026 Enat UAT2 Developer Observability Search · Created by nhxttx',
-    '© {CURRENT_YEAR} · {html.escape(ENVIRONMENT_LABEL)} Developer Observability Search · Developed by nhxttx',
+    required[4],
+    '© {CURRENT_YEAR} · {html.escape(ENVIRONMENT_LABEL)} Developer Observability Search · Developed by original-author',
     1,
 )
 
@@ -249,7 +251,7 @@ done
 ok "New service HTTP readiness verified"
 
 grep -Fq "$OBSERVABILITY_ENV_LABEL Developer Observability Search" "$BACKUP/new-home.html"
-grep -Fq "Developed by nhxttx" "$BACKUP/new-home.html"
+grep -Fq "Developed by original-author" "$BACKUP/new-home.html"
 grep -Fq ">ENVIRONMENT<" "$BACKUP/new-home.html"
 ok "New UI identity and footer verified"
 
@@ -259,9 +261,7 @@ systemctl disable "$LEGACY_SERVICE" >/dev/null 2>&1 || true
 
 rm -f "/etc/systemd/system/multi-user.target.wants/$LEGACY_SERVICE"
 rm -f "/etc/systemd/system/$LEGACY_SERVICE"
-rm -rf /opt/enat-trace-lookup
-rm -rf /etc/enat-trace-lookup
-rm -rf /etc/enat-trace-lookup-secret
+info "Legacy application, service files, and credentials were retained for reviewed cleanup after validation."
 systemctl daemon-reload
 
 ok "Standardization complete"
