@@ -1,6 +1,8 @@
 # Sanitized Reference Runtime Contract
 
-**Captured:** 2026-09-23  
+> **Public reference only:** Directory tokens such as `<opensearch-install-dir>` are placeholders, not literal Linux paths. The bank-specific layout and actual paths belong in the private deployment inventory. Generic systemd and config templates elsewhere in this repo remain examples, not evidence of the live installation.
+
+**Reference baseline:** historical UAT example; deployment-specific paths and timestamps are omitted.
 **Scope:** Dedicated observability host runtime contract used for clean-room qualification.
 
 This document records the operational shape of the currently operated UAT
@@ -36,11 +38,11 @@ The reference runtime uses:
 
 Important reference ownership:
 
-- `/opt/opensearch` -> `opensearch:opensearch`
-- `/opt/opensearch-dashboards` -> `opensearch:opensearch`
-- `/opt/data-prepper` -> `dataprepper:dataprepper`
-- `/opt/prometheus` -> `prometheus:prometheus`
-- `/opt/alertmanager` -> `root:root`
+- `<opensearch-install-dir>` -> `opensearch:opensearch`
+- `<dashboards-install-dir>` -> `opensearch:opensearch`
+- `<data-prepper-install-dir>` -> `dataprepper:dataprepper`
+- `<prometheus-install-dir>` -> `prometheus:prometheus`
+- `<alertmanager-install-dir>` -> `root:root`
 - `/data/prometheus` -> `prometheus:prometheus`
 - `/data/alertmanager` -> `alertmanager:alertmanager`
 
@@ -105,7 +107,7 @@ OpenSearch ingest credentials and CA material are private deployment inputs.
 - evaluation interval: 30s
 - external environment label: deployment parameter
 - Alertmanager target: loopback 9093
-- rule directory: `/etc/prometheus/rules/*.yml`
+- rule directory: `<prometheus-rules-dir>/*.yml`
 - TSDB: `/data/prometheus`
 - retention time: 5d
 - retention size: 3GB
@@ -148,7 +150,7 @@ process-exporter:
 
 - binary: `/usr/local/bin/process-exporter`
 - runs as root in the reference environment
-- configuration: `/etc/process-exporter/process-exporter.yml`
+- configuration: `<process-exporter-config-file>`
 - listen address: `127.0.0.1:9256`
 - smaps disabled
 - thread collection disabled
