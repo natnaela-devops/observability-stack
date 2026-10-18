@@ -3,21 +3,21 @@
 > **Public reference only:** Directory tokens such as `<opensearch-install-dir>` are placeholders, not literal Linux paths. The bank-specific layout and actual paths belong in the private deployment inventory. Generic systemd and config templates elsewhere in this repo remain examples, not evidence of the live installation.
 
 **Reference baseline:** historical UAT example; deployment-specific paths and timestamps are omitted.
-**Purpose:** Freeze the currently operated dedicated-observability-host component versions and runtime layout before reusable-installation qualification.
+**Purpose:** Record a representative component baseline and service layout for reproducible qualification.
 
-This document is intentionally sanitized. It records versions, executable paths, and service roles only. It contains no customer names, internal addresses, credentials, certificates, tokens, or telemetry data.
+This document is intentionally sanitized. It records example versions, path roles, and service responsibilities only. It contains no customer names, internal addresses, credentials, certificates, tokens, or telemetry data.
 
 ## Verified component matrix
 
-| Component | Version | Verified runtime path / state |
+| Component | Version | Reference executable role / state |
 |---|---:|---|
 | OpenSearch | 3.6.0 | `<opensearch-install-dir>/bin/opensearch` |
 | OpenSearch Dashboards | 3.6.0 | `<dashboards-install-dir>/bin/opensearch-dashboards` |
 | Data Prepper | 2.16.0 | `<data-prepper-install-dir>/bin/data-prepper` |
 | Prometheus | 3.14.0 | `<prometheus-install-dir>/prometheus` |
 | Alertmanager | 0.31.1 | `<alertmanager-install-dir>/alertmanager` |
-| node_exporter | 1.12.1 | `/usr/local/bin/node_exporter`; installed where Linux host scraping is required |
-| process-exporter | 0.8.7 | `/usr/local/bin/process-exporter` |
+| node_exporter | 1.12.1 | `<node-exporter-binary>`; installed where Linux host scraping is required |
+| process-exporter | 0.8.7 | `<process-exporter-binary>` |
 | OpenTelemetry Collector on the dedicated host | Not installed | Collector responsibilities remain cluster-side |
 | OpenTelemetry Java agent | 2.30.0 | Application instrumentation baseline |
 
@@ -36,7 +36,7 @@ The reference dedicated host runs these systemd-managed services:
 The Prometheus reference process uses:
 
 - configuration: `<prometheus-config-file>`
-- TSDB: `/data/prometheus`
+- TSDB: `<prometheus-data-dir>`
 - retention time: `5d`
 - retention size: `3GB`
 - listen address: `0.0.0.0:9090`
@@ -45,7 +45,7 @@ The Prometheus reference process uses:
 The Alertmanager reference process uses:
 
 - configuration: `<alertmanager-config-file>`
-- storage: `/data/alertmanager`
+- storage: `<alertmanager-data-dir>`
 - listen address: `0.0.0.0:9093`
 
 The process-exporter reference process uses:
