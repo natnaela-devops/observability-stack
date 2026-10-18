@@ -4,6 +4,10 @@ A version-pinned, progressively validated observability platform for RKE2 and Ja
 
 This implementation replaces the repository's former SigNoz/Grafana experiment. **SigNoz and Grafana are not components of this implementation.**
 
+## Public reference boundary
+
+This repository is a sanitized engineering reference, **not an export of bank servers**. Installation paths in templates are illustrative Linux defaults; directory layouts, host inventories, actual environment overrides, organization identifiers, credential paths and rollback artifacts belong in private, access-controlled infrastructure records. Some historical UAT qualification results are described here without releasing raw reports. Prior Git commits may still contain older deployment references until a separate historical audit is completed.
+
 ## Current stack
 
 | Layer | Component | Validated version | Responsibility |
@@ -20,7 +24,7 @@ This implementation replaces the repository's former SigNoz/Grafana experiment. 
 | Storage and UI | OpenSearch and OpenSearch Dashboards | 3.6.0 | Logs, traces, application maps, dashboards, and investigation |
 | Platform | RKE2 / Kubernetes | v1.35.7+rke2r1 / v1.35.7 | Application orchestration |
 
-The dedicated observability-host versions above were synchronized on 2026-09-23 to the currently operated UAT reference environment. Kubernetes-side Collector/Operator versions remain independently pinned until they are revalidated against that reference.
+The versions above document a pinned reference configuration, not a live inventory for any particular bank. Use the compatibility and validation procedures before deploying to another environment.
 
 See [Version and Lifecycle Policy](docs/01-version-policy.md) for the selection rules and production promotion process.
 
