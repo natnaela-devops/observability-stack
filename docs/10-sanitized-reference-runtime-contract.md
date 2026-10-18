@@ -5,13 +5,12 @@
 **Reference baseline:** historical UAT example; deployment-specific paths and timestamps are omitted.
 **Scope:** Dedicated observability host runtime contract used for clean-room qualification.
 
-This document records the operational shape of the currently operated UAT
-reference without customer identifiers, internal addresses, credentials,
+This document records a generalized example of a UAT reference without customer identifiers, internal addresses, credentials,
 certificate contents, tokens, or telemetry payloads.
 
 ## Host and component contract
 
-The reference host runs Ubuntu 24.04.4 LTS on x86_64. The currently pinned
+The example host runs Ubuntu 24.04 LTS on x86_64. The illustrative pinned
 observability components are:
 
 | Component | Version |
@@ -43,15 +42,15 @@ Important reference ownership:
 - `<data-prepper-install-dir>` -> `dataprepper:dataprepper`
 - `<prometheus-install-dir>` -> `prometheus:prometheus`
 - `<alertmanager-install-dir>` -> `root:root`
-- `/data/prometheus` -> `prometheus:prometheus`
-- `/data/alertmanager` -> `alertmanager:alertmanager`
+- `<prometheus-data-dir>` -> `prometheus:prometheus`
+- `<alertmanager-data-dir>` -> `alertmanager:alertmanager`
 
 ## OpenSearch runtime
 
 The reference node is a secured single-node deployment.
 
-- data path: `/data/opensearch`
-- log path: `/data/logs/opensearch`
+- data path: `<opensearch-data-dir>`
+- log path: `<opensearch-log-dir>`
 - HTTP: 9200
 - transport: 9300
 - security plugin enabled
@@ -108,7 +107,7 @@ OpenSearch ingest credentials and CA material are private deployment inputs.
 - external environment label: deployment parameter
 - Alertmanager target: loopback 9093
 - rule directory: `<prometheus-rules-dir>/*.yml`
-- TSDB: `/data/prometheus`
+- TSDB: `<prometheus-data-dir>`
 - retention time: 5d
 - retention size: 3GB
 - remote-write receiver enabled
@@ -127,7 +126,7 @@ deployment parameters.
 ## Alertmanager runtime
 
 - listen address: 0.0.0.0:9093
-- storage: `/data/alertmanager`
+- storage: `<alertmanager-data-dir>`
 - resolve timeout: 5m
 - grouping: alert name, severity, environment
 - group wait: 10s
@@ -142,13 +141,13 @@ The bot token and chat ID are secrets and must never be committed.
 
 node_exporter:
 
-- binary: `/usr/local/bin/node_exporter`
+- binary: `<node-exporter-binary>`
 - service user: `node_exporter`
 - listen address: `0.0.0.0:9115`
 
 process-exporter:
 
-- binary: `/usr/local/bin/process-exporter`
+- binary: `<process-exporter-binary>`
 - runs as root in the reference environment
 - configuration: `<process-exporter-config-file>`
 - listen address: `127.0.0.1:9256`
